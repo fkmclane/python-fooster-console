@@ -8,4 +8,4 @@ from . import commands
 __all__ = ['name', 'version', 'ConsoleArgumentParser', 'ConsoleQuit', 'ConsoleExit', 'ConsoleHandler', 'ConsoleServer', 'defaults', 'commands']
 
 name = 'fooster-console'
-version = '0.0a0'
+version = '0.1a1'
