@@ -5,7 +5,6 @@ from .server import ConsoleHandler, ConsoleServer
 from . import defaults
 from . import commands
 
-__all__ = ['name', 'version', 'ConsoleArgumentParser', 'ConsoleQuit', 'ConsoleExit', 'ConsoleHandler', 'ConsoleServer', 'defaults', 'commands']
+__all__ = ['ConsoleArgumentParser', 'ConsoleQuit', 'ConsoleExit', 'ConsoleHandler', 'ConsoleServer', 'defaults', 'commands']
 
-name = 'fooster-console'
-version = '0.1a1'
+__version__ = '0.1.0a1'

@@ -1,8 +1,9 @@
+import functools
 import inspect
-import multiprocessing
 import shlex
 import socket
 import socketserver
+import threading
 
 import paramiko
 
@@ -16,11 +17,13 @@ __all__ = ['ConsoleHandler', 'ConsoleServer']
 
 class ConsoleSSH(paramiko.ServerInterface):
     def __init__(self, *args, **kwargs):
-        self.shell_requested = multiprocessing.Event()
+        self.shell_requested = threading.Event()
+        self.username = None
 
         super().__init__(*args, **kwargs)
 
     def check_auth_none(self, username):
+        self.username = username
         return paramiko.AUTH_SUCCESSFUL
 
     def check_channel_request(self, kind, chanid):
@@ -41,8 +44,16 @@ class ConsoleSSH(paramiko.ServerInterface):
 
 
 class ConsoleHandler(socketserver.StreamRequestHandler):
-    settings = defaults.settings
-    commands = defaults.commands
+    def __init__(self, *args, settings=None, commands=None, **kwargs):
+        if settings is None:
+            settings = defaults.settings
+        if commands is None:
+            commands = defaults.commands
+
+        self.settings = settings
+        self.commands = commands
+
+        super().__init__(*args, **kwargs)
 
     def setup(self):
         try:
@@ -260,10 +271,4 @@ class ConsoleServer(socketserver.ForkingTCPServer):
     allow_reuse_address = True
 
     def __init__(self, settings, commands, *args, handler=ConsoleHandler, **kwargs):
-        class GenHandler(handler):
-            pass
-
-        GenHandler.settings = settings
-        GenHandler.commands = commands
-
-        super().__init__(settings['bind_addr'], GenHandler, *args, **kwargs)
+        super().__init__(settings['bind_addr'], functools.partial(handler, settings=settings, commands=commands), *args, **kwargs)
